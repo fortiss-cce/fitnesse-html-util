@@ -4,47 +4,47 @@ import fitnesse.wiki.*;
 
 public class HtmlUtil {
 
-    public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
+    public static final String INCLUDE_SETUP_COMMAND = "!include -setup .";
+    public static final String INCLUDE_TEARDOWN_COMMAND = "!include -teardown .";
+
+    public static String generateTestableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
         WikiPage wikiPage = pageData.getWikiPage();
         StringBuffer buffer = new StringBuffer();
+        boolean hasTest = pageData.hasAttribute("Test");
 
-        if (pageData.hasAttribute("Test")) {
-            if (includeSuiteSetup) {
-                WikiPage suiteSetup = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_SETUP_NAME, wikiPage);
-                if (suiteSetup != null) {
-                    WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteSetup);
-                    String pagePathName = PathParser.render(pagePath);
-                    buffer.append("!include -setup .").append(pagePathName).append("\n");
-                }
-            }
-            WikiPage setup = PageCrawlerImpl.getInheritedPage("SetUp", wikiPage);
-            if (setup != null) {
-                WikiPagePath setupPath = wikiPage.getPageCrawler().getFullPath(setup);
-                String setupPathName = PathParser.render(setupPath);
-                buffer.append("!include -setup .").append(setupPathName).append("\n");
-            }
-        }
-
+        addTestSetup(hasTest, includeSuiteSetup, wikiPage, buffer);
         buffer.append(pageData.getContent());
-        if (pageData.hasAttribute("Test")) {
-            WikiPage teardown = PageCrawlerImpl.getInheritedPage("TearDown", wikiPage);
-            if (teardown != null) {
-                WikiPagePath tearDownPath = wikiPage.getPageCrawler().getFullPath(teardown);
-                String tearDownPathName = PathParser.render(tearDownPath);
-                buffer.append("!include -teardown .").append(tearDownPathName).append("\n");
-            }
-            if (includeSuiteSetup) {
-                WikiPage suiteTeardown = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_TEARDOWN_NAME, wikiPage);
-                if (suiteTeardown != null) {
-                    WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteTeardown);
-                    String pagePathName = PathParser.render(pagePath);
-                    buffer.append("!include -teardown .").append(pagePathName).append("\n");
-                }
-            }
-        }
+        addTestTeardown(hasTest, includeSuiteSetup, wikiPage, buffer);
 
         pageData.setContent(buffer.toString());
         return pageData.getHtml();
+    }
+
+    private static void addTestSetup(boolean hasTest, boolean includeSuiteSetup, WikiPage wikiPage, StringBuffer buffer) throws Exception {
+        if (hasTest) {
+            if (includeSuiteSetup) {
+                appendHtml(wikiPage, buffer, SuiteResponder.SUITE_SETUP_NAME, INCLUDE_SETUP_COMMAND);
+            }
+            appendHtml(wikiPage, buffer, "SetUp", INCLUDE_SETUP_COMMAND);
+        }
+    }
+
+    private static void addTestTeardown(boolean hasTest, boolean includeSuiteSetup, WikiPage wikiPage, StringBuffer buffer) throws Exception {
+        if (hasTest) {
+            appendHtml(wikiPage, buffer, "TearDown", INCLUDE_TEARDOWN_COMMAND);
+            if (includeSuiteSetup) {
+                appendHtml(wikiPage, buffer, SuiteResponder.SUITE_TEARDOWN_NAME, INCLUDE_TEARDOWN_COMMAND);
+            }
+        }
+    }
+
+    private static void appendHtml(WikiPage wikiPage, StringBuffer buffer, String pageName, String command) throws Exception {
+        WikiPage inheritedPage = PageCrawlerImpl.getInheritedPage(pageName, wikiPage);
+        if (inheritedPage != null) {
+            WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(inheritedPage);
+            String pagePathName = PathParser.render(pagePath);
+            buffer.append(command).append(pagePathName).append("\n");
+        }
     }
 
 }

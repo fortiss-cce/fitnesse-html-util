@@ -14,7 +14,7 @@ public class HtmlUtilTest extends TestCase {
         crawler.addPage(root, PathParser.parse("TearDown"), "teardown");
         WikiPage page = crawler.addPage(root, PathParser.parse("TestPage"), "the content");
 
-        String html = HtmlUtil.testableHtml(page.getData(), false);
+        String html = HtmlUtil.generateTestableHtml(page.getData(), false);
         assertSubString(".SetUp", html);
         assertSubString("setup", html);
         assertSubString(".TearDown", html);
