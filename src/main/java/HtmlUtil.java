@@ -9,41 +9,41 @@ public class HtmlUtil {
 
     public static String generateTestableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
         WikiPage wikiPage = pageData.getWikiPage();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         boolean hasTest = pageData.hasAttribute("Test");
 
-        addTestSetup(hasTest, includeSuiteSetup, wikiPage, buffer);
-        buffer.append(pageData.getContent());
-        addTestTeardown(hasTest, includeSuiteSetup, wikiPage, buffer);
+        addTestSetup(hasTest, includeSuiteSetup, wikiPage, stringBuilder);
+        stringBuilder.append(pageData.getContent());
+        addTestTeardown(hasTest, includeSuiteSetup, wikiPage, stringBuilder);
 
-        pageData.setContent(buffer.toString());
+        pageData.setContent(stringBuilder.toString());
         return pageData.getHtml();
     }
 
-    private static void addTestSetup(boolean hasTest, boolean includeSuiteSetup, WikiPage wikiPage, StringBuffer buffer) throws Exception {
+    private static void addTestSetup(boolean hasTest, boolean includeSuiteSetup, WikiPage wikiPage, StringBuilder stringBuilder) throws Exception {
         if (hasTest) {
             if (includeSuiteSetup) {
-                appendHtml(wikiPage, buffer, SuiteResponder.SUITE_SETUP_NAME, INCLUDE_SETUP_COMMAND);
+                appendHtml(wikiPage, stringBuilder, SuiteResponder.SUITE_SETUP_NAME, INCLUDE_SETUP_COMMAND);
             }
-            appendHtml(wikiPage, buffer, "SetUp", INCLUDE_SETUP_COMMAND);
+            appendHtml(wikiPage, stringBuilder, "SetUp", INCLUDE_SETUP_COMMAND);
         }
     }
 
-    private static void addTestTeardown(boolean hasTest, boolean includeSuiteSetup, WikiPage wikiPage, StringBuffer buffer) throws Exception {
+    private static void addTestTeardown(boolean hasTest, boolean includeSuiteSetup, WikiPage wikiPage, StringBuilder stringBuilder) throws Exception {
         if (hasTest) {
-            appendHtml(wikiPage, buffer, "TearDown", INCLUDE_TEARDOWN_COMMAND);
+            appendHtml(wikiPage, stringBuilder, "TearDown", INCLUDE_TEARDOWN_COMMAND);
             if (includeSuiteSetup) {
-                appendHtml(wikiPage, buffer, SuiteResponder.SUITE_TEARDOWN_NAME, INCLUDE_TEARDOWN_COMMAND);
+                appendHtml(wikiPage, stringBuilder, SuiteResponder.SUITE_TEARDOWN_NAME, INCLUDE_TEARDOWN_COMMAND);
             }
         }
     }
 
-    private static void appendHtml(WikiPage wikiPage, StringBuffer buffer, String pageName, String command) throws Exception {
+    private static void appendHtml(WikiPage wikiPage, StringBuilder stringBuilder, String pageName, String command) throws Exception {
         WikiPage inheritedPage = PageCrawlerImpl.getInheritedPage(pageName, wikiPage);
         if (inheritedPage != null) {
             WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(inheritedPage);
             String pagePathName = PathParser.render(pagePath);
-            buffer.append(command).append(pagePathName).append("\n");
+            stringBuilder.append(command).append(pagePathName).append("\n");
         }
     }
 
