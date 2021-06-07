@@ -23,6 +23,8 @@ public class HtmlUtil {
             if (includeSuiteSetup) {
                  appendContentToPage(wikiPage, SuiteResponder.SUITE_TEARDOWN_NAME, buffer, "!include -teardown .");
             }
+        } else {
+            buffer.append(pageData.getContent());
         }
 
         pageData.setContent(buffer.toString());
