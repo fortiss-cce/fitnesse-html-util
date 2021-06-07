@@ -9,9 +9,9 @@ public class HtmlUtil {
      */
     public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
         WikiPage wikiPage = pageData.getWikiPage();
-        StringBuffer buffer = new StringBuffer();
 
         if (pageData.hasAttribute("Test")) {
+            StringBuffer buffer = new StringBuffer();
             if (includeSuiteSetup) {
                 appendContentToPage(wikiPage, SuiteResponder.SUITE_SETUP_NAME, buffer, "!include -teardown .");
             }
@@ -23,11 +23,9 @@ public class HtmlUtil {
             if (includeSuiteSetup) {
                  appendContentToPage(wikiPage, SuiteResponder.SUITE_TEARDOWN_NAME, buffer, "!include -teardown .");
             }
-        } else {
-            buffer.append(pageData.getContent());
+            pageData.setContent(buffer.toString());
         }
 
-        pageData.setContent(buffer.toString());
         return pageData.getHtml();
     }
 
