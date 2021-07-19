@@ -4,6 +4,24 @@ import fitnesse.wiki.*;
 
 public class HtmlUtil {
 
+    /**
+     * Return a somehow generated html code.
+     *
+     * For example:
+     * <div class="setup">
+     * 	<div style="float: right;" class="meta"><a href="javascript:expandAll();">Expand All</a> | <a href="javascript:collapseAll();">Collapse All</a></div>
+     * 	<a href="javascript:toggleCollapsable('4717033458227362526');">
+     * 		<img src="/files/images/collapsableOpen.gif" class="left" id="img4717033458227362526"/>
+     * 	</a>
+     * &nbsp;<span class="meta">Set Up: <a href="SetUp">.SetUp</a></span>
+     * 	<div class="collapsable" id="4717033458227362526">setup</div>
+     * </div>
+     *
+     * @param pageData ???
+     * @param includeSuiteSetup ???
+     * @return string representing html code
+     * @throws Exception
+     */
     public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
         WikiPage wikiPage = pageData.getWikiPage();
         StringBuffer buffer = new StringBuffer();
