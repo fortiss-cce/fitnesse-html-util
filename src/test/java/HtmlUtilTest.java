@@ -8,7 +8,7 @@ public class HtmlUtilTest extends TestCase {
 
 
     public void testTestableHtml() throws Exception {
-        WikiPage root = InMemoryPage.makeRoot("RooT");
+        WikiPage root = InMemoryPage.makeRoot("Root");
         PageCrawler crawler = root.getPageCrawler();
         crawler.addPage(root, PathParser.parse("SetUp"), "setup");
         crawler.addPage(root, PathParser.parse("TearDown"), "teardown");
