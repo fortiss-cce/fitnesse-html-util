@@ -2,49 +2,61 @@ import fitnesse.responders.run.SuiteResponder;
 import fitnesse.wiki.*;
 
 
+/*
+
+ */
+
 public class HtmlUtil {
 
-    public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
-        WikiPage wikiPage = pageData.getWikiPage();
-        StringBuffer buffer = new StringBuffer();
+    private static WikiPage wikiPage;
+    private static StringBuffer buffer;
 
-        if (pageData.hasAttribute("Test")) {
+
+    public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
+        wikiPage = pageData.getWikiPage();
+        buffer = new StringBuffer();
+
+        String attribute = "Test";
+
+        if (pageData.hasAttribute(attribute)) {
             if (includeSuiteSetup) {
-                WikiPage suiteSetup = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_SETUP_NAME, wikiPage);
-                if (suiteSetup != null) {
-                    WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteSetup);
-                    String pagePathName = PathParser.render(pagePath);
-                    buffer.append("!include -setup .").append(pagePathName).append("\n");
-                }
+                append_page_to_buffer(SuiteResponder.SUITE_SETUP_NAME, "!include -setup .");
             }
-            WikiPage setup = PageCrawlerImpl.getInheritedPage("SetUp", wikiPage);
-            if (setup != null) {
-                WikiPagePath setupPath = wikiPage.getPageCrawler().getFullPath(setup);
-                String setupPathName = PathParser.render(setupPath);
-                buffer.append("!include -setup .").append(setupPathName).append("\n");
-            }
+            append_page_to_buffer("SetUp", "!include -setup .");
         }
 
         buffer.append(pageData.getContent());
-        if (pageData.hasAttribute("Test")) {
-            WikiPage teardown = PageCrawlerImpl.getInheritedPage("TearDown", wikiPage);
-            if (teardown != null) {
-                WikiPagePath tearDownPath = wikiPage.getPageCrawler().getFullPath(teardown);
-                String tearDownPathName = PathParser.render(tearDownPath);
-                buffer.append("!include -teardown .").append(tearDownPathName).append("\n");
-            }
+
+        if (pageData.hasAttribute(attribute)) {
+
+            append_page_to_buffer("TearDown", "!include -teardown .");
+
             if (includeSuiteSetup) {
-                WikiPage suiteTeardown = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_TEARDOWN_NAME, wikiPage);
-                if (suiteTeardown != null) {
-                    WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteTeardown);
-                    String pagePathName = PathParser.render(pagePath);
-                    buffer.append("!include -teardown .").append(pagePathName).append("\n");
-                }
+                append_page_to_buffer(SuiteResponder.SUITE_TEARDOWN_NAME, "!include -teardown .");
             }
         }
 
         pageData.setContent(buffer.toString());
         return pageData.getHtml();
+    }
+
+
+
+
+    /*
+
+     */
+
+    private static void append_page_to_buffer(String name, String description) throws Exception
+    {
+        WikiPage page = PageCrawlerImpl.getInheritedPage(name, wikiPage);
+
+        if (page != null) {
+            WikiPagePath path = wikiPage.getPageCrawler().getFullPath(page);
+            String pathName = PathParser.render(path);
+            buffer.append(description).append(pathName).append("\n");
+        }
+
     }
 
 }
