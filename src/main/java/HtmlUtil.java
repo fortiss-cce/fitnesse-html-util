@@ -6,7 +6,7 @@ public class HtmlUtil {
 
     public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
         WikiPage wikiPage = pageData.getWikiPage();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (pageData.hasAttribute("Test")) {
             if (includeSuiteSetup) {
