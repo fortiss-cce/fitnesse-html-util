@@ -3,48 +3,72 @@ import fitnesse.wiki.*;
 
 
 public class HtmlUtil {
+    public static final String TEST = "Test";
+    public static final String SETUP = "SetUp";
+    public static final String TEARDOWN = "TearDown";
 
     public static String testableHtml(PageData pageData, boolean includeSuiteSetup) throws Exception {
         WikiPage wikiPage = pageData.getWikiPage();
         StringBuffer buffer = new StringBuffer();
 
-        if (pageData.hasAttribute("Test")) {
+        // Look for inherited setup page, if found, append this zto the buffer
+        if (pageData.hasAttribute(TEST)) {
             if (includeSuiteSetup) {
-                WikiPage suiteSetup = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_SETUP_NAME, wikiPage);
-                if (suiteSetup != null) {
-                    WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteSetup);
-                    String pagePathName = PathParser.render(pagePath);
-                    buffer.append("!include -setup .").append(pagePathName).append("\n");
-                }
+                buffer = HtmlUtil.addInheritedPageToBuffer(SuiteResponder.SUITE_SETUP_NAME, wikiPage, buffer);
+                buffer = HtmlUtil.addInheritedPageToBuffer(SuiteResponder.SUITE_TEARDOWN_NAME, wikiPage, buffer);
             }
-            WikiPage setup = PageCrawlerImpl.getInheritedPage("SetUp", wikiPage);
-            if (setup != null) {
-                WikiPagePath setupPath = wikiPage.getPageCrawler().getFullPath(setup);
-                String setupPathName = PathParser.render(setupPath);
-                buffer.append("!include -setup .").append(setupPathName).append("\n");
-            }
+            buffer = HtmlUtil.addInheritedPageToBuffer(SETUP, wikiPage, buffer);
+            buffer = HtmlUtil.addInheritedPageToBuffer(TEARDOWN, wikiPage, buffer);
         }
 
         buffer.append(pageData.getContent());
-        if (pageData.hasAttribute("Test")) {
-            WikiPage teardown = PageCrawlerImpl.getInheritedPage("TearDown", wikiPage);
-            if (teardown != null) {
-                WikiPagePath tearDownPath = wikiPage.getPageCrawler().getFullPath(teardown);
-                String tearDownPathName = PathParser.render(tearDownPath);
-                buffer.append("!include -teardown .").append(tearDownPathName).append("\n");
-            }
-            if (includeSuiteSetup) {
-                WikiPage suiteTeardown = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_TEARDOWN_NAME, wikiPage);
-                if (suiteTeardown != null) {
-                    WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteTeardown);
-                    String pagePathName = PathParser.render(pagePath);
-                    buffer.append("!include -teardown .").append(pagePathName).append("\n");
-                }
-            }
-        }
 
         pageData.setContent(buffer.toString());
         return pageData.getHtml();
+    }
+
+    /***
+     * Build the buffer based in the wiki page provided information
+     * @param wikiPageName The name of the wiki page
+     * @param wikiPage The wiki page
+     * @param buffer The buffer used to append the wiki page information
+     * @return The result buffer containing new information
+     * @throws Exception
+     */
+    private static StringBuffer addInheritedPageToBuffer(String wikiPageName, WikiPage wikiPage, StringBuffer buffer) throws Exception {
+        WikiPage foundPage = PageCrawlerImpl.getInheritedPage(wikiPageName, wikiPage);
+        if (foundPage != null) {
+            WikiPagePath foundPagePath = wikiPage.getPageCrawler().getFullPath(foundPage);
+            String foundPagePathName = PathParser.render(foundPagePath);
+
+            // Check which type of the page we want to append
+            String bufferAppendix = HtmlUtil.getBufferAppendix(wikiPageName);
+            buffer.append(bufferAppendix).append(foundPagePathName).append("\n");
+        }
+
+        return buffer;
+    }
+
+    /***
+     * Define the buffer appendix based on the wiki page name
+     * @param wikiPageName The name of the wiki page
+     * @return The buffer appendix as string
+     */
+    private static String getBufferAppendix(String wikiPageName) {
+        String bufferAppendix = "";
+
+        switch (wikiPageName) {
+            case "SetUp":
+            case SuiteResponder.SUITE_SETUP_NAME:
+                bufferAppendix = "!include -setup .";
+                break;
+            case "TearDown":
+            case SuiteResponder.SUITE_TEARDOWN_NAME:
+                bufferAppendix = "!include -teardown .";
+                break;
+        }
+
+        return bufferAppendix;
     }
 
 }
