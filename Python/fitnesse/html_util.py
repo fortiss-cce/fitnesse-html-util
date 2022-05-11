@@ -1,6 +1,9 @@
+import dataclasses
 from io import StringIO
+from typing import List, Optional
 
 from fitnesse.context import SuiteResponder, PageCrawlerImpl, PageData, PathParser, WikiPage, WikiPagePath
+
 
 class Stage:
     typ: str
@@ -13,24 +16,25 @@ class Stage:
         self.page_name = page_name
         self.include_options = include_options.copy()
 
+
 class HtmlUtil:
     STAGES = [
-        Stage('suite', 'setup', SuiteResponder.SUITE_SETUP_NAME),
-        Stage('suite', 'setup', 'SetUp'),
+        Stage('suite', SuiteResponder.SUITE_SETUP_NAME, ['setup']),
+        Stage('suite', 'SetUp', ['setup']),
         Stage('content'),
-        Stage('suite', 'teardown', 'TearDown'),
-        Stage('suite', 'teardown', SuiteResponder.SUITE_TEARDOWN_NAME),
+        Stage('suite', 'TearDown', ['teardown']),
+        Stage('suite', SuiteResponder.SUITE_TEARDOWN_NAME, ['teardown']),
     ]
 
     @staticmethod
     def _write_suite(page_crawler, wiki_page, stage):
         page: WikiPage = page_crawler.get_inherited_page(name, wiki_page)
         if page is None: return
-        
+
         page_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(stage.page_name)
         page_path_name: str = path_parser.render(page_path)
         options: str = ' '.join('-' + i for i in stage.include_options)
-        
+
         string_io.writelines([f"!include {options} .", page_path_name, "\n"])
             
     @staticmethod
@@ -55,7 +59,7 @@ class HtmlUtil:
                 
         for stage in stages:
             if stage.typ == 'suite':
-                _write_suite(page_crawler, wiki_page, stage)
+                HtmlUtil._write_suite(page_crawler, wiki_page, stage)
             elif stage.typ == 'content':
                 string_io.writelines([page_data.get_content()])
             else:
