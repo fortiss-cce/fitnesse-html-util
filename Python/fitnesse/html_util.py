@@ -12,22 +12,22 @@ class HtmlUtil:
 
         if page_data.has_attribute("Test"):
             if include_suite_setup:
-                HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, SuiteResponder.SUITE_SETUP_NAME, 'setup')
-            HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, 'SetUp', 'setup')
+                HtmlUtil.append_include_command(page_crawler, path_parser, string_io, wiki_page, SuiteResponder.SUITE_SETUP_NAME, 'setup')
+            HtmlUtil.append_include_command(page_crawler, path_parser, string_io, wiki_page, 'SetUp', 'setup')
 
         string_io.writelines([page_data.get_content()])
         if page_data.has_attribute("Test"):
-            HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, 'TearDown',
+            HtmlUtil.append_include_command(page_crawler, path_parser, string_io, wiki_page, 'TearDown',
                                  'teardown')
             if include_suite_setup:
-                HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, SuiteResponder.SUITE_TEARDOWN_NAME,
+                HtmlUtil.append_include_command(page_crawler, path_parser, string_io, wiki_page, SuiteResponder.SUITE_TEARDOWN_NAME,
                                      'teardown')
 
         page_data.set_content(string_io.getvalue())
         return page_data.get_html()
 
     @staticmethod
-    def method_name(page_crawler, path_parser, string_io, wiki_page, page_name, include_command: str):
+    def append_include_command(page_crawler, path_parser, string_io, wiki_page, page_name, include_command: str):
         suite_setup: WikiPage = page_crawler.get_inherited_page(page_name, wiki_page)
         if suite_setup is not None:
             page_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(suite_setup)
