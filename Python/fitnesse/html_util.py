@@ -12,31 +12,24 @@ class HtmlUtil:
 
         if page_data.has_attribute("Test"):
             if include_suite_setup:
-                suite_setup: WikiPage = page_crawler.get_inherited_page(SuiteResponder.SUITE_SETUP_NAME, wiki_page)
-                if suite_setup is not None:
-                    page_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(suite_setup)
-                    page_path_name: str = path_parser.render(page_path)
-                    string_io.writelines(["!include -setup .", page_path_name, "\n"])
-
-            setup: WikiPage = page_crawler.get_inherited_page("SetUp", wiki_page)
-            if setup is not None:
-                setup_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(setup)
-                setup_path_name: str = path_parser.render(setup_path)
-                string_io.writelines(["!include -setup .", setup_path_name, "\n"])
+                HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, SuiteResponder.SUITE_SETUP_NAME, 'setup')
+            HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, 'SetUp', 'setup')
 
         string_io.writelines([page_data.get_content()])
         if page_data.has_attribute("Test"):
-            teardown: WikiPage = page_crawler.get_inherited_page("TearDown", wiki_page)
-            if teardown is not None:
-                tear_down_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(teardown)
-                tear_down_path_name: str = path_parser.render(tear_down_path)
-                string_io.writelines(["!include -teardown .", tear_down_path_name, "\n"])
+            HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, 'TearDown',
+                                 'teardown')
             if include_suite_setup:
-                suite_teardown: WikiPage = page_crawler.get_inherited_page(SuiteResponder.SUITE_TEARDOWN_NAME, wiki_page)
-                if suite_teardown is not None:
-                    page_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(suite_teardown)
-                    page_path_name: str = path_parser.render(page_path)
-                    string_io.writelines(["!include -teardown .", page_path_name, "\n"])
+                HtmlUtil.method_name(page_crawler, path_parser, string_io, wiki_page, SuiteResponder.SUITE_TEARDOWN_NAME,
+                                     'teardown')
 
         page_data.set_content(string_io.getvalue())
         return page_data.get_html()
+
+    @staticmethod
+    def method_name(page_crawler, path_parser, string_io, wiki_page, page_name, include_command: str):
+        suite_setup: WikiPage = page_crawler.get_inherited_page(page_name, wiki_page)
+        if suite_setup is not None:
+            page_path: WikiPagePath = wiki_page.get_page_crawler().get_full_path(suite_setup)
+            page_path_name: str = path_parser.render(page_path)
+            string_io.writelines([f"!include -{include_command} .", page_path_name, "\n"])
