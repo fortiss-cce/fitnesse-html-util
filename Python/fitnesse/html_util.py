@@ -5,8 +5,18 @@ from fitnesse.context import SuiteResponder, PageCrawlerImpl, PageData, PathPars
 
 class HtmlUtil:
 
+    def write_pagepath_to_IO(page: WikiPage, string_io: StringIO, comment: str):
+        page_crawler: WikiPagePath = wiki_page.get_page_crawler()
+        page_path: page_crawler.get_full_path(page)
+        page_path_name: str = path_parser.render(page_path)
+        string_io.writelines([f"{comment}", page_path_name, "\n"])
+
     @staticmethod
-    def testable_html(page_data: PageData, include_suite_setup: bool, page_crawler: PageCrawlerImpl, path_parser: PathParser) -> str:
+    def testable_html(page_data: PageData,
+                      include_suite_setup: bool,
+                      page_crawler: PageCrawlerImpl,
+                      path_parser: PathParser) -> str:
+
         wiki_page: WikiPage = page_data.get_wiki_page()
         string_io: StringIO = StringIO()
 
@@ -25,6 +35,7 @@ class HtmlUtil:
                 string_io.writelines(["!include -setup .", setup_path_name, "\n"])
 
         string_io.writelines([page_data.get_content()])
+
         if page_data.has_attribute("Test"):
             teardown: WikiPage = page_crawler.get_inherited_page("TearDown", wiki_page)
             if teardown is not None:
