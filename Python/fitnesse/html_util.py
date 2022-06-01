@@ -6,7 +6,7 @@ from fitnesse.context import PathParser, WikiPage, WikiPagePath
 class HtmlUtil:
 
     @staticmethod
-    def _write_pagepath_to_IO(page: WikiPage,
+    def _write_pagepath_to_io(page: WikiPage,
                               string_io: StringIO,
                               pparser: PathParser,
                               comment: str):
@@ -16,12 +16,12 @@ class HtmlUtil:
         string_io.writelines([f"{comment}", page_path_name, "\n"])
 
     @staticmethod
-    def write_pagepath_to_IO(page: WikiPage,
+    def write_pagepath_to_io(page: WikiPage,
                              string_io: StringIO,
                              pparser: PathParser,
                              comment: str):
         if page is not None:
-            HtmlUtil._write_pagepath_to_IO(page, string_io, pparser, comment)
+            HtmlUtil._write_pagepath_to_io(page, string_io, pparser, comment)
 
     @staticmethod
     def testable_html(page_data: PageData,
@@ -37,14 +37,14 @@ class HtmlUtil:
             if include_suite_setup:
                 pinfo = (SuiteResponder.SUITE_SETUP_NAME, wiki_page)
                 suite_setup: WikiPage = page_crawler.get_inherited_page(pinfo)
-                HtmlUtil.write_pagepath_to_IO(suite_setup,
+                HtmlUtil.write_pagepath_to_io(suite_setup,
                                               string_io,
                                               path_parser,
                                               "!include -setup .")
 
             setup: WikiPage = page_crawler.get_inherited_page("SetUp",
                                                                wiki_page)
-            HtmlUtil.write_pagepath_to_IO(setup,
+            HtmlUtil.write_pagepath_to_io(setup,
                                           string_io,
                                           path_parser,
                                           "!include -setup .")
@@ -53,7 +53,7 @@ class HtmlUtil:
 
             teardown: WikiPage = page_crawler.get_inherited_page("TearDown",
                                                                   wiki_page)
-            HtmlUtil.write_pagepath_to_IO(teardown,
+            HtmlUtil.write_pagepath_to_io(teardown,
                                           string_io,
                                           path_parser,
                                           "!include -teardown .")
@@ -61,7 +61,7 @@ class HtmlUtil:
             if include_suite_setup:
                 pinfo = (SuiteResponder.SUITE_TEARDOWN_NAME, wiki_page)
                 suite_teardown: WikiPage = page_crawler.get_inherited_page(pinfo)
-                HtmlUtil.write_pagepath_to_IO(suite_teardown,
+                HtmlUtil.write_pagepath_to_io(suite_teardown,
                                               string_io,
                                               path_parser,
                                               "!include -teardown .")
