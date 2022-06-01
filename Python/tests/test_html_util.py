@@ -1,5 +1,6 @@
 from fitnesse.html_util import HtmlUtil
-from tests.conftest import WikiPage, PageCrawler, PathParser, PageCrawlerImpl
+from tests.conftest import WikiPage, PageCrawler, PathParser, PageCrawlerImpl, PageData
+import typing
 
 
 def test_testable_html(wiki_page: WikiPage, path_parser: PathParser, page_crawler: PageCrawlerImpl):
@@ -9,7 +10,15 @@ def test_testable_html(wiki_page: WikiPage, path_parser: PathParser, page_crawle
     crawler.add_page(root, path_parser.parse("TearDown"), "teardown")
     page: WikiPage = crawler.add_page(root, path_parser.parse("TestPage"), "the content")
 
-    html: str = HtmlUtil.testable_html(page.get_data(), False, page_crawler, path_parser)
+    Pages = {
+        page.get_data(),
+        False,
+        page_crawler,
+        path_parser
+    }
+
+    HtmlUtilInst = HtmlUtil()
+    html: str = HtmlUtilInst.testable_html(pages=Pages)
     assert ".SetUp" in html
     assert "setup" in html
     assert ".TearDown" in html
