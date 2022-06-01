@@ -9,7 +9,8 @@ def test_testable_html(wiki_page: WikiPage, path_parser: PathParser, page_crawle
     crawler.add_page(root, path_parser.parse("TearDown"), "teardown")
     page: WikiPage = crawler.add_page(root, path_parser.parse("TestPage"), "the content")
 
-    html: str = HtmlUtil.testable_html(page.get_data(), False, page_crawler, path_parser)
+    html_util = HtmlUtil(page_crawler, path_parser)
+    html: str = html_util.build_testable_html(page.get_data(), False)
     assert ".SetUp" in html
     assert "setup" in html
     assert ".TearDown" in html
