@@ -1,6 +1,7 @@
 from io import StringIO
 
-from fitnesse.context import SuiteResponder, PageCrawlerImpl, PageData, PathParser, WikiPage, WikiPagePath
+from fitnesse.context import SuiteResponder, PageCrawlerImpl, PageData
+from fitnesse.context import PathParser, WikiPage, WikiPagePath
 
 
 class HtmlUtil:
