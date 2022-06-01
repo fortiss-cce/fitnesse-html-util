@@ -16,6 +16,7 @@ class HtmlUtil:
         wiki_page_crawler: PageCrawlerImpl = wiki_page.get_page_crawler()
         string_io: StringIO = StringIO()
 
+        # Helper to write a page
         def write_page_path_to_io(command: str, page_name: str, context: WikiPage):
             suite_setup: WikiPage = page_crawler.get_inherited_page(page_name, context)
             if suite_setup is None:
@@ -25,15 +26,19 @@ class HtmlUtil:
             string_io.writelines(["!include ", command, " .", page_path_name, "\n"])
 
 
+        # Write suite setup
         if include_suite_setup:
             write_page_path_to_io("-setup", SuiteResponder.SUITE_SETUP_NAME, wiki_page)
 
+        # Write page content 
         write_page_path_to_io("-setup", "SetUp", wiki_page)
         string_io.writelines([page_data.get_content()])
         write_page_path_to_io("-teardown", "TearDown", wiki_page)
 
+        # Write suite teardown
         if include_suite_setup:
             write_page_path_to_io("-teardown", SuiteResponder.SUITE_TEARDOWN_NAME, wiki_page)
 
+        # Set the page data
         page_data.set_content(string_io.getvalue())
         return page_data.get_html()
