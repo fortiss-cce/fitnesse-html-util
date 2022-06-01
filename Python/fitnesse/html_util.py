@@ -33,34 +33,41 @@ class HtmlUtil:
         string_io: StringIO = StringIO()
 
         if page_data.has_attribute("Test"):
+
             if include_suite_setup:
-                suite_setup: WikiPage = page_crawler.get_inherited_page(SuiteResponder.SUITE_SETUP_NAME, wiki_page)
+                pinfo = (SuiteResponder.SUITE_SETUP_NAME, wiki_page)
+                suite_setup: WikiPage = page_crawler.get_inherited_page(pinfo)
                 HtmlUtil.write_pagepath_to_IO(suite_setup,
                                               string_io,
                                               path_parser,
                                               "!include -setup .")
 
-            setup: WikiPage = page_crawler.get_inherited_page("SetUp", wiki_page)
+            setup: WikiPage = page_crawler.get_inherited_page("SetUp",
+                                                               wiki_page)
             HtmlUtil.write_pagepath_to_IO(setup,
                                           string_io,
                                           path_parser,
                                           "!include -setup .")
 
-        string_io.writelines([page_data.get_content()])
+            string_io.writelines([page_data.get_content()])
 
-        if page_data.has_attribute("Test"):
-            teardown: WikiPage = page_crawler.get_inherited_page("TearDown", wiki_page)
+            teardown: WikiPage = page_crawler.get_inherited_page("TearDown",
+                                                                  wiki_page)
             HtmlUtil.write_pagepath_to_IO(teardown,
                                           string_io,
                                           path_parser,
                                           "!include -teardown .")
 
             if include_suite_setup:
-                suite_teardown: WikiPage = page_crawler.get_inherited_page(SuiteResponder.SUITE_TEARDOWN_NAME, wiki_page)
+                pinfo = (SuiteResponder.SUITE_TEARDOWN_NAME, wiki_page)
+                suite_teardown: WikiPage = page_crawler.get_inherited_page(pinfo)
                 HtmlUtil.write_pagepath_to_IO(suite_teardown,
                                               string_io,
                                               path_parser,
                                               "!include -teardown .")
+
+        else:
+            string_io.writelines([page_data.get_content()])
 
         page_data.set_content(string_io.getvalue())
         return page_data.get_html()
